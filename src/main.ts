@@ -35,7 +35,6 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   const OpenApiSpecification = apiReference({
     title: 'local-finder-be API',
     theme: 'default',

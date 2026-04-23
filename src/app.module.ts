@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BaseValidationPipe } from './common/bases/base.validation';
 import { AllExceptionFilter } from './common/bases/exceptions/base.exception';
 import { typeOrmConfig } from './database/database';
+import { ScraperModule } from './modules/scraper/scraper.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { typeOrmConfig } from './database/database';
       useFactory: async () => await typeOrmConfig(),
       inject: [],
     }),
+    ScraperModule,
   ],
   controllers: [],
   providers: [
