@@ -6,15 +6,19 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as cheerio from 'cheerio';
 import puppeteer, { Browser, Page } from 'puppeteer-core';
-import { IResultScraping } from './interfaces/result-scraping.interface';
 import { StartScrapingDto } from './dto/start-scraping.dto';
 import { ResponseStartScraping } from './dto/response-start-scraping.dto';
+import { LocationItemRepository } from '../location-item/location-item.repository';
+import { LocationItem } from '../location-item/entities/location-item.entity';
 
 @Injectable()
 export class ScraperService {
   private readonly logger = new Logger(ScraperService.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly locationItemRepository: LocationItemRepository,
+  ) {}
 
   async initiateBrowser() {
     const browser = await puppeteer.launch({
@@ -60,7 +64,7 @@ export class ScraperService {
   ): Promise<ResponseStartScraping[]> {
     const browser: Browser = await this.initiateBrowser();
     if (!browser) throw new InternalServerErrorException();
-    const results: IResultScraping[] = [];
+    const savedResultScraping: LocationItem[] = [];
     try {
       const page = await browser.newPage();
 
@@ -131,19 +135,25 @@ export class ScraperService {
 
         this.logger.debug(`Successfully getting location detail: ${title}`);
 
-        results.push({
+        const _createLocationItem = {
           title,
           rating,
           address,
           phoneNumber,
           url,
           googleMapsUrl: item,
-        });
+        };
+
+        const savedLocationItem =
+          this.locationItemRepository.create(_createLocationItem);
+        savedResultScraping.push(savedLocationItem);
       }
 
+      const result =
+        await this.locationItemRepository.save(savedResultScraping);
       this.logger.debug('Successfully scraped all locations');
 
-      return results;
+      return result;
     } catch (error) {
       this.logger.error('Scraping failed', error);
       throw error;

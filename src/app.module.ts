@@ -6,6 +6,7 @@ import { BaseValidationPipe } from './common/bases/base.validation';
 import { AllExceptionFilter } from './common/bases/exceptions/base.exception';
 import { typeOrmConfig } from './database/database';
 import { ScraperModule } from './modules/scraper/scraper.module';
+import { LocationItemModule } from './modules/location-item/location-item.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ScraperModule } from './modules/scraper/scraper.module';
       inject: [],
     }),
     ScraperModule,
+    LocationItemModule,
   ],
   controllers: [],
   providers: [
