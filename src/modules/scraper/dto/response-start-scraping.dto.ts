@@ -21,4 +21,8 @@ export class ResponseStartScraping {
   @ApiProperty()
   @Expose()
   url!: string;
+
+  @ApiProperty()
+  @Expose()
+  googleMapsUrl!: string;
 }

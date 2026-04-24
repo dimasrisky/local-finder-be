@@ -12,18 +12,13 @@ import { StartScrapingDto } from './dto/start-scraping.dto';
 import { ResponseStartScraping } from './dto/response-start-scraping.dto';
 
 @Injectable()
-export class ScraperService implements OnModuleInit {
+export class ScraperService {
   private readonly logger = new Logger(ScraperService.name);
-  private browser: Browser | undefined;
 
   constructor(private readonly configService: ConfigService) {}
 
-  async onModuleInit(): Promise<void> {
-    await this.initiateBrowser();
-  }
-
   async initiateBrowser() {
-    this.browser = await puppeteer.launch({
+    const browser = await puppeteer.launch({
       headless: true,
       executablePath:
         this.configService.get('CHROME_PATH') ||
@@ -40,6 +35,8 @@ export class ScraperService implements OnModuleInit {
         '--disable-blink-features=AutomationControlled', // agar tidak terdeteksi bot
       ],
     });
+
+    return browser
   }
 
   async autoScroll(page: Page, maxScrolls: number = 5): Promise<void> {
@@ -62,10 +59,11 @@ export class ScraperService implements OnModuleInit {
   async startScraping(
     startScrapingDto: StartScrapingDto,
   ): Promise<ResponseStartScraping[]> {
-    if (!this.browser) throw new InternalServerErrorException();
+    const browser: Browser = await this.initiateBrowser();
+    if (!browser) throw new InternalServerErrorException();
     const results: IResultScraping[] = [];
     try {
-      const page = await this.browser.newPage();
+      const page = await browser.newPage();
 
       await page.goto(
         `https://www.google.com/maps/search/${startScrapingDto.search}`,
@@ -86,6 +84,8 @@ export class ScraperService implements OnModuleInit {
           return $location.attr('href');
         })
         .get();
+
+      console.log(items);
 
       for (const item of items) {
         await page.goto(item, {
@@ -126,17 +126,16 @@ export class ScraperService implements OnModuleInit {
         const urlAnchor = $$('a[data-item-id="authority"]');
         const url = urlAnchor.attr('href') || '-';
 
-        results.push({ title, rating, address, phoneNumber, url });
+        results.push({ title, rating, address, phoneNumber, url, googleMapsUrl: item });
       }
 
       return results;
     } catch (error) {
       this.logger.error('Scraping failed', error);
-      await this.browser.close();
       throw error;
     } finally {
-      if (this.browser) {
-        await this.browser.close();
+      if (browser) {
+        await browser.close();
       }
     }
   }

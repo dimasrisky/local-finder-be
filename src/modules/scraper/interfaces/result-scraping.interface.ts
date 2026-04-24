@@ -4,4 +4,5 @@ export interface IResultScraping {
   address: string;
   phoneNumber: string;
   url: string;
+  googleMapsUrl: string;
 }
