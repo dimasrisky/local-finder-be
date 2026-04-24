@@ -2,7 +2,6 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
-  OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as cheerio from 'cheerio';
@@ -36,7 +35,7 @@ export class ScraperService {
       ],
     });
 
-    return browser
+    return browser;
   }
 
   async autoScroll(page: Page, maxScrolls: number = 5): Promise<void> {
@@ -65,6 +64,7 @@ export class ScraperService {
     try {
       const page = await browser.newPage();
 
+      this.logger.debug('Getting list locations...');
       await page.goto(
         `https://www.google.com/maps/search/${startScrapingDto.search}`,
         {
@@ -73,6 +73,7 @@ export class ScraperService {
         },
       );
       await this.autoScroll(page, startScrapingDto.maxScroll);
+      this.logger.debug('Successfully getting list locations');
 
       // Ambil list lokasi
       const html = await page.content();
@@ -81,13 +82,15 @@ export class ScraperService {
       const items = $('div[role=article] > a')
         .map((i, element) => {
           const $location = $(element);
+          this.logger.debug(`Getting Location: ${$location.attr('href')}`);
           return $location.attr('href');
         })
         .get();
 
-      console.log(items);
+      this.logger.debug(`Successfully getting ${items.length} locations`);
 
       for (const item of items) {
+        this.logger.debug('Getting location detail...');
         await page.goto(item, {
           waitUntil: 'networkidle2',
           timeout: 30000,
@@ -126,8 +129,19 @@ export class ScraperService {
         const urlAnchor = $$('a[data-item-id="authority"]');
         const url = urlAnchor.attr('href') || '-';
 
-        results.push({ title, rating, address, phoneNumber, url, googleMapsUrl: item });
+        this.logger.debug(`Successfully getting location detail: ${title}`);
+
+        results.push({
+          title,
+          rating,
+          address,
+          phoneNumber,
+          url,
+          googleMapsUrl: item,
+        });
       }
+
+      this.logger.debug('Successfully scraped all locations');
 
       return results;
     } catch (error) {
