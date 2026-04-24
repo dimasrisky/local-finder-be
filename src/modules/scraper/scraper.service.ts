@@ -30,7 +30,15 @@ export class ScraperService implements OnModuleInit {
         (process.platform === 'win32'
           ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
           : '/usr/bin/google-chrome'),
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-setuid-sandbox',
+        '--no-sandbox',
+        '--disable-web-security',
+        '--disable-features=IsolateOrigins,site-per-process',
+        '--disable-blink-features=AutomationControlled', // agar tidak terdeteksi bot
+      ],
     });
   }
 
