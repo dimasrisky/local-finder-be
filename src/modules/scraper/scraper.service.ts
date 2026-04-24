@@ -8,7 +8,6 @@ import * as cheerio from 'cheerio';
 import puppeteer, { Browser, Page } from 'puppeteer-core';
 import { StartScrapingDto } from './dto/start-scraping.dto';
 import { ResponseStartScraping } from './dto/response-start-scraping.dto';
-import { LocationItemRepository } from '../location-item/location-item.repository';
 import { LocationItem } from '../location-item/entities/location-item.entity';
 import { DataSource } from 'typeorm';
 import { Location } from '../location/entities/location.entity';
@@ -19,7 +18,6 @@ export class ScraperService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly locationItemRepository: LocationItemRepository,
     private readonly datasource: DataSource,
   ) {}
 
