@@ -10,6 +10,8 @@ import { StartScrapingDto } from './dto/start-scraping.dto';
 import { ResponseStartScraping } from './dto/response-start-scraping.dto';
 import { LocationItemRepository } from '../location-item/location-item.repository';
 import { LocationItem } from '../location-item/entities/location-item.entity';
+import { DataSource } from 'typeorm';
+import { Location } from '../location/entities/location.entity';
 
 @Injectable()
 export class ScraperService {
@@ -18,6 +20,7 @@ export class ScraperService {
   constructor(
     private readonly configService: ConfigService,
     private readonly locationItemRepository: LocationItemRepository,
+    private readonly datasource: DataSource,
   ) {}
 
   async initiateBrowser() {
@@ -65,8 +68,21 @@ export class ScraperService {
     const browser: Browser = await this.initiateBrowser();
     if (!browser) throw new InternalServerErrorException();
     const savedResultScraping: LocationItem[] = [];
+
+    const queryRunner = this.datasource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
       const page = await browser.newPage();
+
+      const location = queryRunner.manager.create(Location, {
+        name: startScrapingDto.name,
+        searchQuery: startScrapingDto.search,
+        totalItems: 0,
+      });
+      const savedLocation = await queryRunner.manager.save(Location, location);
+      console.log(savedLocation);
 
       this.logger.debug('Getting list locations...');
       await page.goto(
@@ -142,25 +158,38 @@ export class ScraperService {
           phoneNumber,
           url,
           googleMapsUrl: item,
+          location: savedLocation,
         };
 
-        const savedLocationItem =
-          this.locationItemRepository.create(_createLocationItem);
+        const savedLocationItem = queryRunner.manager.create(
+          LocationItem,
+          _createLocationItem,
+        );
         savedResultScraping.push(savedLocationItem);
       }
 
-      const result =
-        await this.locationItemRepository.save(savedResultScraping);
+      const result = await queryRunner.manager.save(
+        LocationItem,
+        savedResultScraping,
+      );
+
+      savedLocation.totalItems = result.length;
+      await queryRunner.manager.save(Location, savedLocation);
+
+      await queryRunner.commitTransaction();
+
       this.logger.debug('Successfully scraped all locations');
 
       return result;
     } catch (error) {
       this.logger.error('Scraping failed', error);
+      await queryRunner.rollbackTransaction();
       throw error;
     } finally {
       if (browser) {
         await browser.close();
       }
+      await queryRunner.release();
     }
   }
 }

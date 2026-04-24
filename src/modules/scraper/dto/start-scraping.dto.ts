@@ -3,6 +3,15 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class StartScrapingDto {
   @ApiProperty({
+    name: 'name',
+    description: 'nama scraping',
+    example: 'Data coffeeshop',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name!: string;
+
+  @ApiProperty({
     name: 'search',
     description: 'key untuk search lokasi',
     example: 'coffeeshop',
