@@ -8,6 +8,7 @@ import { typeOrmConfig } from './database/database';
 import { ScraperModule } from './modules/scraper/scraper.module';
 import { LocationItemModule } from './modules/location-item/location-item.module';
 import { UserModule } from './modules/user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from './modules/user/user.module';
     ScraperModule,
     LocationItemModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [
