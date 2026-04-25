@@ -7,6 +7,7 @@ import { AllExceptionFilter } from './common/bases/exceptions/base.exception';
 import { typeOrmConfig } from './database/database';
 import { ScraperModule } from './modules/scraper/scraper.module';
 import { LocationItemModule } from './modules/location-item/location-item.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LocationItemModule } from './modules/location-item/location-item.module
     }),
     ScraperModule,
     LocationItemModule,
+    UserModule,
   ],
   controllers: [],
   providers: [
