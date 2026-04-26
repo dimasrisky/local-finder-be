@@ -14,6 +14,7 @@ import { Location } from '../location/entities/location.entity';
 import { IJwtPayload } from 'src/common/interfaces/jwt-payload.interface';
 import { User } from '../user/entities/user.entity';
 import { NotFoundException } from 'src/common/bases/exceptions/templates/not-found.exception';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ScraperService {
@@ -23,6 +24,22 @@ export class ScraperService {
     private readonly configService: ConfigService,
     private readonly datasource: DataSource,
   ) {}
+
+  // Cron
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async resetAllUsersRequest() {
+    try {
+      await this.datasource
+        .createQueryBuilder()
+        .update(User)
+        .set({ currentRequest: 0 })
+        .where('id IS NOT NULL')
+        .execute();
+      this.logger.log('All users currentRequest reset to 0');
+    } catch (error) {
+      this.logger.error('Failed to reset users currentRequest', error);
+    }
+  }
 
   async initiateBrowser() {
     const browser = await puppeteer.launch({
