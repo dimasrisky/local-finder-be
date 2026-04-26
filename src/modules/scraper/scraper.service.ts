@@ -15,6 +15,8 @@ import { IJwtPayload } from 'src/common/interfaces/jwt-payload.interface';
 import { User } from '../user/entities/user.entity';
 import { NotFoundException } from 'src/common/bases/exceptions/templates/not-found.exception';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { BadRequestException } from 'src/common/bases/exceptions/templates/bad-request.exception';
+import { BaseExceptionResponse } from 'src/common/bases/base.response';
 
 @Injectable()
 export class ScraperService {
@@ -102,6 +104,34 @@ export class ScraperService {
     }
   }
 
+  async validateCurrentRequest(
+    queryRunner: QueryRunner,
+    id: number,
+  ): Promise<void> {
+    try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { id },
+        select: {
+          currentRequest: true,
+        },
+      });
+
+      if (!user) throw new NotFoundException('user tidak ditemukan', 'user');
+      if (user.currentRequest >= +this.configService.get('REQUEST_PER_DAY')) {
+        throw new BadRequestException(
+          new BaseExceptionResponse(
+            'limitReached',
+            'Daily limit reached',
+            'currentRequest',
+          ),
+        );
+      }
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
   async startScraping(
     startScrapingDto: StartScrapingDto,
     user: IJwtPayload,
@@ -115,6 +145,7 @@ export class ScraperService {
     await queryRunner.startTransaction();
 
     try {
+      await this.validateCurrentRequest(queryRunner, user.id);
       const page = await browser.newPage();
 
       const location = queryRunner.manager.create(Location, {
