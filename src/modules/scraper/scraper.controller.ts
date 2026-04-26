@@ -27,7 +27,6 @@ export class ScraperController {
     @Body() startScrapingDto: StartScrapingDto,
     @Request() req: ExpressRequest,
   ): Promise<BaseSuccessResponse<ResponseStartScraping>> {
-    console.log(req.user);
     const result = await this.scraperService.startScraping(startScrapingDto);
     return {
       data: plainToInstance(ResponseStartScraping, result, {
