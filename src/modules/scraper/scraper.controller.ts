@@ -27,7 +27,10 @@ export class ScraperController {
     @Body() startScrapingDto: StartScrapingDto,
     @Request() req: ExpressRequest,
   ): Promise<BaseSuccessResponse<ResponseStartScraping>> {
-    const result = await this.scraperService.startScraping(startScrapingDto);
+    const result = await this.scraperService.startScraping(
+      startScrapingDto,
+      req.user!,
+    );
     return {
       data: plainToInstance(ResponseStartScraping, result, {
         excludeExtraneousValues: true,

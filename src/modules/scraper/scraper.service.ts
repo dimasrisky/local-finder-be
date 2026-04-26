@@ -9,8 +9,11 @@ import puppeteer, { Browser, Page } from 'puppeteer-core';
 import { StartScrapingDto } from './dto/start-scraping.dto';
 import { ResponseStartScraping } from './dto/response-start-scraping.dto';
 import { LocationItem } from '../location-item/entities/location-item.entity';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { Location } from '../location/entities/location.entity';
+import { IJwtPayload } from 'src/common/interfaces/jwt-payload.interface';
+import { User } from '../user/entities/user.entity';
+import { NotFoundException } from 'src/common/bases/exceptions/templates/not-found.exception';
 
 @Injectable()
 export class ScraperService {
@@ -60,8 +63,31 @@ export class ScraperService {
     }, maxScrolls);
   }
 
+  private async updatedCurrentRequestUser(
+    queryRunner: QueryRunner,
+    id: number,
+  ): Promise<void> {
+    try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { id },
+        select: {
+          id: true,
+          currentRequest: true,
+        },
+      });
+
+      if (!user) throw new NotFoundException('user tidak ditemukan', 'user');
+      user.currentRequest = user.currentRequest + 1;
+      await queryRunner.manager.save(User, user);
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
+  }
+
   async startScraping(
     startScrapingDto: StartScrapingDto,
+    user: IJwtPayload,
   ): Promise<ResponseStartScraping[]> {
     const browser: Browser = await this.initiateBrowser();
     if (!browser) throw new InternalServerErrorException();
@@ -78,9 +104,9 @@ export class ScraperService {
         name: startScrapingDto.name,
         searchQuery: startScrapingDto.search,
         totalItems: 0,
+        user: { id: user.id },
       });
       const savedLocation = await queryRunner.manager.save(Location, location);
-      console.log(savedLocation);
 
       this.logger.debug('Getting list locations...');
       await page.goto(
@@ -178,6 +204,8 @@ export class ScraperService {
 
       savedLocation.totalItems = result.length;
       await queryRunner.manager.save(Location, savedLocation);
+
+      await this.updatedCurrentRequestUser(queryRunner, user.id);
 
       await queryRunner.commitTransaction();
 
