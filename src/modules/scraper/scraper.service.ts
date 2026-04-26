@@ -108,62 +108,67 @@ export class ScraperService {
       this.logger.debug(`Successfully getting ${items.length} locations`);
 
       for (const item of items) {
-        this.logger.debug('Getting location detail...');
-        await page.goto(item, {
-          waitUntil: 'networkidle2',
-          timeout: 30000,
-        });
+        try {
+          this.logger.debug('Getting location detail...');
+          await page.goto(item, {
+            waitUntil: 'networkidle2',
+            timeout: 30000,
+          });
 
-        const html = await page.content();
-        const $$ = cheerio.load(html);
+          const html = await page.content();
+          const $$ = cheerio.load(html);
 
-        // Title - cari h1
-        const title = $$('h1').first().text().trim();
+          // Title - cari h1
+          const title = $$('h1').first().text().trim();
 
-        // Rating - cari dari aria-label yang mengandung "bintang"
-        let rating = '';
-        $$('[aria-label*="bintang"]').each((i, el) => {
-          const label = $$(el).attr('aria-label') || '-';
-          const match = label.match(/([\d,]+\.?\d*)\s*bintang/);
-          if (match && !rating) {
-            rating = match[1].replace(',', '.');
-          }
-        });
+          // Rating - cari dari aria-label yang mengandung "bintang"
+          let rating = '';
+          $$('[aria-label*="bintang"]').each((i, el) => {
+            const label = $$(el).attr('aria-label') || '-';
+            const match = label.match(/([\d,]+\.?\d*)\s*bintang/);
+            if (match && !rating) {
+              rating = match[1].replace(',', '.');
+            }
+          });
 
-        // Address - dari button dengan data-item-id="address"
-        const addressBtn = $$('button[data-item-id="address"]');
-        const address =
-          addressBtn.attr('aria-label')?.replace('Alamat: ', '') || '-';
+          // Address - dari button dengan data-item-id="address"
+          const addressBtn = $$('button[data-item-id="address"]');
+          const address =
+            addressBtn.attr('aria-label')?.replace('Alamat: ', '') || '-';
 
-        // Phone - dari button dengan data-item-id yang mengandung "phone"
-        const phoneBtn = $$('button[data-item-id*="phone"]');
-        const phoneNumber =
-          phoneBtn
-            .attr('aria-label')
-            ?.replace('Telepon: ', '')
-            .replace(/\s/g, '') || '-';
+          // Phone - dari button dengan data-item-id yang mengandung "phone"
+          const phoneBtn = $$('button[data-item-id*="phone"]');
+          const phoneNumber =
+            phoneBtn
+              .attr('aria-label')
+              ?.replace('Telepon: ', '')
+              .replace(/\s/g, '') || '-';
 
-        // Url
-        const urlAnchor = $$('a[data-item-id="authority"]');
-        const url = urlAnchor.attr('href') || '-';
+          // Url
+          const urlAnchor = $$('a[data-item-id="authority"]');
+          const url = urlAnchor.attr('href') || '-';
 
-        this.logger.debug(`Successfully getting location detail: ${title}`);
+          this.logger.debug(`Successfully getting location detail: ${title}`);
 
-        const _createLocationItem = {
-          title,
-          rating,
-          address,
-          phoneNumber,
-          url,
-          googleMapsUrl: item,
-          location: savedLocation,
-        };
+          const _createLocationItem = {
+            title,
+            rating,
+            address,
+            phoneNumber,
+            url,
+            googleMapsUrl: item,
+            location: savedLocation,
+          };
 
-        const savedLocationItem = queryRunner.manager.create(
-          LocationItem,
-          _createLocationItem,
-        );
-        savedResultScraping.push(savedLocationItem);
+          const savedLocationItem = queryRunner.manager.create(
+            LocationItem,
+            _createLocationItem,
+          );
+          savedResultScraping.push(savedLocationItem);
+        } catch (error) {
+          this.logger.error(error);
+          continue;
+        }
       }
 
       const result = await queryRunner.manager.save(
