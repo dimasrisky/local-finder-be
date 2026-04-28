@@ -7,6 +7,7 @@ import { BaseSuccessResponse } from 'src/common/bases/base.response';
 import { plainToInstance } from 'class-transformer';
 import { LoginDto } from './dto/login.dto';
 import { ResponseLoginDto } from './dto/response-login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,6 +37,24 @@ export class AuthController {
     @Body() loginDto: LoginDto,
   ): Promise<BaseSuccessResponse<ResponseLoginDto>> {
     const result = await this.authService.login(loginDto);
+    return {
+      data: plainToInstance(ResponseLoginDto, result, {
+        excludeExtraneousValues: true,
+      }),
+    };
+  }
+
+  @Post('refresh-token')
+  @CreateSwaggerExample(
+    RefreshTokenDto,
+    ResponseLoginDto,
+    false,
+    'Untuk Refresh Token User',
+  )
+  refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): BaseSuccessResponse<ResponseLoginDto> {
+    const result = this.authService.refreshToken(refreshTokenDto);
     return {
       data: plainToInstance(ResponseLoginDto, result, {
         excludeExtraneousValues: true,

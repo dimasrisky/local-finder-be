@@ -8,6 +8,8 @@ import { IsNull } from 'typeorm';
 import { NotFoundException } from 'src/common/bases/exceptions/templates/not-found.exception';
 import { ConfigService } from '@nestjs/config';
 import { ResponseLoginDto } from './dto/response-login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { UnauthorizedException } from 'src/common/bases/exceptions/templates/unauthorized.exception';
 
 @Injectable()
 export class AuthService {
@@ -73,6 +75,40 @@ export class AuthService {
     } catch (error) {
       this.logger.log(error);
       throw error;
+    }
+  }
+
+  refreshToken(refreshTokenDto: RefreshTokenDto): ResponseLoginDto {
+    try {
+      const payload = this.jwtService.verify<{
+        sub: number;
+        username: string;
+        email: string;
+        fullName: string;
+      }>(refreshTokenDto.refreshToken, {
+        secret: this.configService.get('JWT_SECRET'),
+      });
+
+      const nextPayload = {
+        sub: payload.sub,
+        username: payload.username,
+        email: payload.email,
+        fullName: payload.fullName,
+      };
+
+      const accessToken = this.jwtService.sign(nextPayload, {
+        expiresIn: this.configService.get('JWT_EXPIRES_IN'),
+      });
+      const refreshToken = this.jwtService.sign(nextPayload, {
+        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
+      });
+      return { accessToken, refreshToken };
+    } catch (error) {
+      this.logger.log(error);
+      throw new UnauthorizedException(
+        'invalidCredential',
+        'Invalid refresh token.',
+      );
     }
   }
 }
