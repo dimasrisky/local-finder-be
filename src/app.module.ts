@@ -9,6 +9,7 @@ import { ScraperModule } from './modules/scraper/scraper.module';
 import { LocationItemModule } from './modules/location-item/location-item.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
@@ -22,6 +23,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     LocationItemModule,
     UserModule,
     AuthModule,
+    DashboardModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [],
