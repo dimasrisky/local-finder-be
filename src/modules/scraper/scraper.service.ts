@@ -17,6 +17,7 @@ import { NotFoundException } from 'src/common/bases/exceptions/templates/not-fou
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { BadRequestException } from 'src/common/bases/exceptions/templates/bad-request.exception';
 import { BaseExceptionResponse } from 'src/common/bases/base.response';
+import { StatusScraping } from './enums/status-scraping.enum';
 
 @Injectable()
 export class ScraperService {
@@ -152,6 +153,7 @@ export class ScraperService {
         name: startScrapingDto.name,
         searchQuery: startScrapingDto.search,
         totalItems: 0,
+        status: StatusScraping.PROCESSING,
         user: { id: user.id },
       });
       const savedLocation = await queryRunner.manager.save(Location, location);
