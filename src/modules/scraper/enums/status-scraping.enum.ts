@@ -1,5 +1,5 @@
 export enum StatusScraping {
-    PROCESSING = 'processing',
-    DONE = 'done',
-    FAILED = 'failed'
+  PROCESSING = 'processing',
+  DONE = 'done',
+  FAILED = 'failed',
 }

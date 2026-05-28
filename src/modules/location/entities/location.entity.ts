@@ -21,7 +21,7 @@ export class Location extends BaseEntity implements ILocation {
     type: 'enum',
     enum: StatusScraping,
     nullable: true,
-    default: null
+    default: null,
   })
   status!: StatusScraping;
 
