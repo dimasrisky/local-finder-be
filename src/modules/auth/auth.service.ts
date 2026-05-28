@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { ResponseLoginDto } from './dto/response-login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { UnauthorizedException } from 'src/common/bases/exceptions/templates/unauthorized.exception';
+import { ResponseMeDto } from './dto/response-me.dto';
 
 @Injectable()
 export class AuthService {
@@ -109,6 +110,31 @@ export class AuthService {
         'invalidCredential',
         'Invalid refresh token.',
       );
+    }
+  }
+
+  async getProfile(userId: number): Promise<ResponseMeDto> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: userId, deletedAt: IsNull() },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          fullName: true,
+          currentRequest: true,
+          createdAt: true,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found', 'user');
+      }
+
+      return user;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
     }
   }
 }

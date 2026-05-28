@@ -1,6 +1,16 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateSwaggerExample } from 'src/common/swagger/swagger-example.response';
+import {
+  CreateSwaggerExample,
+  DetailSwaggerExample,
+} from 'src/common/swagger/swagger-example.response';
 import { RegisterDto } from './dto/register.dto';
 import { ResponseRegisterDto } from './dto/response-regitser.dto';
 import { BaseSuccessResponse } from 'src/common/bases/base.response';
@@ -8,8 +18,13 @@ import { plainToInstance } from 'class-transformer';
 import { LoginDto } from './dto/login.dto';
 import { ResponseLoginDto } from './dto/response-login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { ResponseMeDto } from './dto/response-me.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import type { Request as ExpressRequest } from 'express';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -57,6 +72,21 @@ export class AuthController {
     const result = this.authService.refreshToken(refreshTokenDto);
     return {
       data: plainToInstance(ResponseLoginDto, result, {
+        excludeExtraneousValues: true,
+      }),
+    };
+  }
+
+  @Get('me')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @DetailSwaggerExample(ResponseMeDto, 'Get current user profile')
+  async getMe(
+    @Request() req: ExpressRequest,
+  ): Promise<BaseSuccessResponse<ResponseMeDto>> {
+    const result = await this.authService.getProfile(req.user!.id);
+    return {
+      data: plainToInstance(ResponseMeDto, result, {
         excludeExtraneousValues: true,
       }),
     };
