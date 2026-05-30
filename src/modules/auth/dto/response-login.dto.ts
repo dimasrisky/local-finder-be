@@ -4,9 +4,9 @@ import { Expose } from 'class-transformer';
 export class ResponseLoginDto {
   @Expose()
   @ApiProperty()
-  accessToken!: string;
+  accessToken: string;
 
   @Expose()
   @ApiProperty()
-  refreshToken!: string;
+  refreshToken: string;
 }

@@ -6,16 +6,16 @@ import { Location } from 'src/modules/location/entities/location.entity';
 @Entity()
 export class User extends BaseEntity implements IUser {
   @Column({ name: 'username', unique: false, nullable: false })
-  username!: string;
+  username: string;
 
   @Column({ name: 'full_name', unique: false, nullable: true })
-  fullName!: string;
+  fullName: string;
 
   @Column({ name: 'password', unique: false, nullable: false })
-  password!: string;
+  password: string;
 
   @Column({ name: 'email', unique: true, nullable: false })
-  email!: string;
+  email: string;
 
   @Column({
     name: 'current_request',
@@ -23,8 +23,8 @@ export class User extends BaseEntity implements IUser {
     nullable: false,
     default: 0,
   })
-  currentRequest!: number;
+  currentRequest: number;
 
   @OneToMany(() => Location, (location) => location.user)
-  locations!: Location[];
+  locations: Location[];
 }

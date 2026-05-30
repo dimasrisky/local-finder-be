@@ -7,21 +7,21 @@ export class ResponseMeDto {
     example: 1,
   })
   @Expose()
-  id!: number;
+  id: number;
 
   @ApiProperty({
     description: 'Username',
     example: 'john_doe',
   })
   @Expose()
-  username!: string;
+  username: string;
 
   @ApiProperty({
     description: 'Email address',
     example: 'john@example.com',
   })
   @Expose()
-  email!: string;
+  email: string;
 
   @ApiProperty({
     description: 'Full name',
@@ -29,19 +29,19 @@ export class ResponseMeDto {
     required: false,
   })
   @Expose()
-  fullName!: string;
+  fullName: string;
 
   @ApiProperty({
     description: 'Current request count for today',
     example: 5,
   })
   @Expose()
-  currentRequest!: number;
+  currentRequest: number;
 
   @ApiProperty({
     description: 'Account creation date',
     example: '2024-01-01T00:00:00.000Z',
   })
   @Expose()
-  createdAt!: Date;
+  createdAt: Date;
 }

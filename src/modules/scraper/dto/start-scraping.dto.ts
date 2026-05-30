@@ -9,7 +9,7 @@ export class StartScrapingDto {
   })
   @IsString()
   @IsNotEmpty()
-  name!: string;
+  name: string;
 
   @ApiProperty({
     name: 'search',
@@ -18,7 +18,7 @@ export class StartScrapingDto {
   })
   @IsString()
   @IsNotEmpty()
-  search!: string;
+  search: string;
 
   @ApiProperty({
     name: 'maxScroll',
@@ -28,7 +28,7 @@ export class StartScrapingDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  maxScroll!: number;
+  maxScroll: number;
 
   @ApiProperty({
     name: 'latitude',

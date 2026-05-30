@@ -4,13 +4,13 @@ import { Expose } from 'class-transformer';
 export class ResponseRegisterDto {
   @Expose()
   @ApiProperty()
-  username!: string;
+  username: string;
 
   @Expose()
   @ApiProperty()
-  email!: string;
+  email: string;
 
   @Expose()
   @ApiProperty()
-  fullName!: string;
+  fullName: string;
 }

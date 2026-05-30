@@ -5,12 +5,12 @@ export class CreateLocationItemDto {
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  title!: string;
+  title: string;
 
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  rating!: string;
+  rating: string;
 
   @ApiProperty({ description: '', required: false, example: '' })
   @IsOptional()
@@ -30,5 +30,5 @@ export class CreateLocationItemDto {
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  googleMapsUrl!: string;
+  googleMapsUrl: string;
 }

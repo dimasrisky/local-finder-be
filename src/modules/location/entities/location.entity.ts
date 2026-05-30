@@ -8,13 +8,13 @@ import { StatusScraping } from 'src/modules/scraper/enums/status-scraping.enum';
 @Entity()
 export class Location extends BaseEntity implements ILocation {
   @Column({ name: 'name', unique: false, nullable: false })
-  name!: string;
+  name: string;
 
   @Column({ name: 'search_query', unique: false, nullable: false })
-  searchQuery!: string;
+  searchQuery: string;
 
   @Column({ name: 'total_items', unique: false, nullable: false })
-  totalItems!: number;
+  totalItems: number;
 
   @Column({
     name: 'status',
@@ -23,11 +23,11 @@ export class Location extends BaseEntity implements ILocation {
     nullable: true,
     default: null,
   })
-  status!: StatusScraping;
+  status: StatusScraping;
 
   @OneToMany(() => LocationItem, (locationItem) => locationItem.location)
-  locationItems!: LocationItem[];
+  locationItems: LocationItem[];
 
   @ManyToOne(() => User, (user) => user.locations)
-  user!: User;
+  user: User;
 }

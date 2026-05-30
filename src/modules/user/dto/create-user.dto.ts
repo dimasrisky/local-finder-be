@@ -5,7 +5,7 @@ export class CreateUserDto {
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  username!: string;
+  username: string;
 
   @ApiProperty({ description: '', required: false, example: '' })
   @IsOptional()
@@ -15,15 +15,15 @@ export class CreateUserDto {
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  password!: string;
+  password: string;
 
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  email!: string;
+  email: string;
 
   @ApiProperty({ description: '', required: true, example: 1 })
   @IsNotEmpty()
   @IsNumber()
-  currentRequest!: number;
+  currentRequest: number;
 }

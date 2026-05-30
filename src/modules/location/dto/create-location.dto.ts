@@ -5,15 +5,15 @@ export class CreateLocationDto {
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  name!: string;
+  name: string;
 
   @ApiProperty({ description: '', required: true, example: '' })
   @IsNotEmpty()
   @IsString()
-  searchQuery!: string;
+  searchQuery: string;
 
   @ApiProperty({ description: '', required: true, example: 1 })
   @IsNotEmpty()
   @IsNumber()
-  totalItems!: number;
+  totalItems: number;
 }

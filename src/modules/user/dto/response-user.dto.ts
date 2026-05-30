@@ -4,29 +4,29 @@ import { Expose } from 'class-transformer';
 export class ResponseUserDto {
   @ApiProperty({ description: 'ID User', example: 1 })
   @Expose()
-  id!: number;
+  id: number;
 
   @ApiProperty({ description: 'createdAt User' })
   @Expose()
-  createdAt!: Date;
+  createdAt: Date;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  username!: string;
+  username: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  fullName!: string;
+  fullName: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  password!: string;
+  password: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  email!: string;
+  email: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  currentRequest!: number;
+  currentRequest: number;
 }

@@ -4,33 +4,33 @@ import { Expose } from 'class-transformer';
 export class ResponseLocationItemDto {
   @ApiProperty({ description: 'ID LocationItem', example: 1 })
   @Expose()
-  id!: number;
+  id: number;
 
   @ApiProperty({ description: 'createdAt LocationItem' })
   @Expose()
-  createdAt!: Date;
+  createdAt: Date;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  title!: string;
+  title: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  rating!: string;
+  rating: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  address!: string;
+  address: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  url!: string;
+  url: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  phoneNumber!: string;
+  phoneNumber: string;
 
   @Expose()
   @ApiProperty({ description: '', example: null })
-  googleMapsUrl!: string;
+  googleMapsUrl: string;
 }

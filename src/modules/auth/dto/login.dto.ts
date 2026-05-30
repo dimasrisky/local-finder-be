@@ -9,7 +9,7 @@ export class LoginDto {
   })
   @IsString()
   @IsEmail()
-  email!: string;
+  email: string;
 
   @ApiProperty({
     name: 'password',
@@ -17,5 +17,5 @@ export class LoginDto {
     example: 'dimas123',
   })
   @IsString()
-  password!: string;
+  password: string;
 }
