@@ -159,13 +159,15 @@ export class ScraperService {
       const savedLocation = await queryRunner.manager.save(Location, location);
 
       this.logger.debug('Getting list locations...');
-      await page.goto(
-        `https://www.google.com/maps/search/${startScrapingDto.search}`,
-        {
-          waitUntil: 'networkidle2',
-          timeout: 30000,
-        },
-      );
+      let url = `https://www.google.com/maps/search/${startScrapingDto.search}`;
+      if (startScrapingDto.latitude && startScrapingDto.longitude) {
+        const zoom = startScrapingDto.zoom || 15;
+        url += `/@${startScrapingDto.latitude},${startScrapingDto.longitude},${zoom}z`;
+      }
+      await page.goto(url, {
+        waitUntil: 'networkidle2',
+        timeout: 30000,
+      });
       await this.autoScroll(page, startScrapingDto.maxScroll);
       this.logger.debug('Successfully getting list locations');
 
