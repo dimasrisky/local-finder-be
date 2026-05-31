@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { BaseSuccessResponse } from 'src/common/bases/base.response';
@@ -11,6 +18,7 @@ import { FilteringLocationDto } from './dto/filtering-location.dto';
 import { ResponseLocationDto } from './dto/response-location.dto';
 import { LocationService } from './location.service';
 import { AuthGuard } from '@nestjs/passport';
+import type { Request as ExpressRequest } from 'express';
 
 @Controller('location')
 @ApiTags('Location')
@@ -23,10 +31,13 @@ export class LocationController {
   @ListSwaggerExample(ResponseLocationDto, 'Mengambil Banyak Data Location')
   async findAndCount(
     @Query() queryParameterDto: FilteringLocationDto,
+    @Request() req: ExpressRequest,
   ): Promise<BaseSuccessResponse<ResponseLocationDto>> {
     const { page = 1, limit = 10, isPaginate = true } = queryParameterDto;
-    const [result, total] =
-      await this.locationService.findAndCount(queryParameterDto);
+    const [result, total] = await this.locationService.findAndCountLocations(
+      queryParameterDto,
+      req?.user,
+    );
 
     return {
       data: plainToInstance(ResponseLocationDto, result, {
