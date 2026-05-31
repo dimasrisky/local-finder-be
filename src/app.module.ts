@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BaseValidationPipe } from './common/bases/base.validation';
@@ -20,11 +20,15 @@ import { BullModule } from '@nestjs/bullmq';
       useFactory: async () => await typeOrmConfig(),
       inject: [],
     }),
-    BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: Number.parseInt(process.env.REDIS_PORT || '6379'),
-      },
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST') || 'localhost',
+          port: Number.parseInt(configService.get('REDIS_PORT') || '6379'),
+        },
+      }),
+      inject: [ConfigService],
     }),
     ScraperModule,
     LocationItemModule,
