@@ -255,6 +255,7 @@ export class ScraperService {
       );
 
       savedLocation.totalItems = result.length;
+      savedLocation.status = StatusScraping.DONE;
       await queryRunner.manager.save(Location, savedLocation);
 
       await this.updatedCurrentRequestUser(queryRunner, user.id);
