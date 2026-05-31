@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { BaseSuccessResponse } from 'src/common/bases/base.response';
 import { PathParameterDto } from 'src/common/dto/path-paramater.dto';
@@ -10,9 +10,12 @@ import {
 import { FilteringLocationItemDto } from './dto/filtering-location-item.dto';
 import { ResponseLocationItemDto } from './dto/response-location-item.dto';
 import { LocationItemService } from './location-item.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('locationItem')
 @ApiTags('LocationItem')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 export class LocationItemController {
   constructor(private readonly locationItemService: LocationItemService) {}
 

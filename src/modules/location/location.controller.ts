@@ -9,8 +9,9 @@ import {
   Post,
   Query,
   Request,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import type { Request as ExpressRequest } from 'express';
 import { BaseSuccessResponse } from 'src/common/bases/base.response';
@@ -26,9 +27,12 @@ import { FilteringLocationDto } from './dto/filtering-location.dto';
 import { ResponseLocationDto } from './dto/response-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { LocationService } from './location.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('location')
 @ApiTags('Location')
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
 
