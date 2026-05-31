@@ -1,10 +1,11 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { Job } from 'bullmq';
-import { ScraperService } from './scraper.service';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { StartScrapingDto } from './dto/start-scraping.dto';
 import { IJwtPayload } from 'src/common/interfaces/jwt-payload.interface';
-import { Processor } from '@nestjs/bullmq';
 import { LocationItem } from '../location-item/entities/location-item.entity';
+import { ScraperService } from './scraper.service';
 
 export const SCRAPER_QUEUE_NAME = 'scraper';
 
@@ -14,10 +15,15 @@ export interface ScraperJobData {
 }
 
 @Processor(SCRAPER_QUEUE_NAME)
-export class ScraperQueueProcessor {
+@Injectable()
+export class ScraperQueueProcessor extends WorkerHost {
   private readonly logger = new Logger(ScraperQueueProcessor.name);
+  private readonly scraperService: ScraperService;
 
-  constructor(private readonly scraperService: ScraperService) {}
+  constructor(private readonly moduleRef: ModuleRef) {
+    super();
+    this.scraperService = this.moduleRef.get(ScraperService, { strict: false });
+  }
 
   async process(
     job: Job<ScraperJobData, LocationItem[], string>,

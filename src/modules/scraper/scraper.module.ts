@@ -13,11 +13,11 @@ import {
 @Module({
   imports: [
     ConfigModule,
-    LocationItemModule,
-    LocationModule,
     BullModule.registerQueue({
       name: SCRAPER_QUEUE_NAME,
     }),
+    LocationItemModule,
+    LocationModule,
   ],
   controllers: [ScraperController],
   providers: [ScraperService, ScraperQueueProcessor],
