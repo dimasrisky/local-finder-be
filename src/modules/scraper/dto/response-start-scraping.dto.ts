@@ -1,28 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import { IsString } from 'class-validator';
 
 export class ResponseStartScraping {
-  @ApiProperty()
+  @ApiProperty({ description: 'ID Job' })
+  @IsString()
   @Expose()
-  title: string;
+  jobId: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Status' })
+  @IsString()
   @Expose()
-  rating: string;
-
-  @ApiProperty()
-  @Expose()
-  address: string;
-
-  @ApiProperty()
-  @Expose()
-  phoneNumber: string;
-
-  @ApiProperty()
-  @Expose()
-  url: string;
-
-  @ApiProperty()
-  @Expose()
-  googleMapsUrl: string;
+  status: string;
 }

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm run lint:*)",
       "Bash(npm run build:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(pnpm run *)",
+      "WebSearch"
     ]
   }
 }

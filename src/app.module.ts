@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -18,6 +19,12 @@ import { ScheduleModule } from '@nestjs/schedule';
     TypeOrmModule.forRootAsync({
       useFactory: async () => await typeOrmConfig(),
       inject: [],
+    }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number.parseInt(process.env.REDIS_PORT || '6379'),
+      },
     }),
     ScraperModule,
     LocationItemModule,

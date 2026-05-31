@@ -7,7 +7,6 @@ import { ConfigService } from '@nestjs/config';
 import * as cheerio from 'cheerio';
 import puppeteer, { Browser, Page } from 'puppeteer-core';
 import { StartScrapingDto } from './dto/start-scraping.dto';
-import { ResponseStartScraping } from './dto/response-start-scraping.dto';
 import { LocationItem } from '../location-item/entities/location-item.entity';
 import { DataSource, QueryRunner } from 'typeorm';
 import { Location } from '../location/entities/location.entity';
@@ -18,6 +17,9 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { BadRequestException } from 'src/common/bases/exceptions/templates/bad-request.exception';
 import { BaseExceptionResponse } from 'src/common/bases/base.response';
 import { StatusScraping } from './enums/status-scraping.enum';
+import { InjectQueue } from '@nestjs/bullmq';
+import { SCRAPER_QUEUE_NAME, ScraperJobData } from './scraper-queue.processor';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class ScraperService {
@@ -26,6 +28,8 @@ export class ScraperService {
   constructor(
     private readonly configService: ConfigService,
     private readonly datasource: DataSource,
+    @InjectQueue(SCRAPER_QUEUE_NAME)
+    private readonly scraperQueue: Queue<ScraperJobData>,
   ) {}
 
   // Cron
@@ -136,7 +140,7 @@ export class ScraperService {
   async startScraping(
     startScrapingDto: StartScrapingDto,
     user: IJwtPayload,
-  ): Promise<ResponseStartScraping[]> {
+  ): Promise<LocationItem[]> {
     const browser: Browser = await this.initiateBrowser();
     if (!browser) throw new InternalServerErrorException();
     const savedResultScraping: LocationItem[] = [];
@@ -275,5 +279,20 @@ export class ScraperService {
       }
       await queryRunner.release();
     }
+  }
+
+  async registerScrapeQueue(
+    startScrapingDto: StartScrapingDto,
+    user: IJwtPayload,
+  ) {
+    const job = await this.scraperQueue.add('start-scraping', {
+      startScrapingDto,
+      user,
+    });
+
+    return {
+      jobId: job.id,
+      status: 'success',
+    };
   }
 }
