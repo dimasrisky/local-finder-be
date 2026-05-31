@@ -1,31 +1,14 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Patch,
-  Post,
-  Query,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import type { Request as ExpressRequest } from 'express';
 import { BaseSuccessResponse } from 'src/common/bases/base.response';
 import { PathParameterDto } from 'src/common/dto/path-paramater.dto';
 import {
-  CreateSwaggerExample,
-  DeleteSwaggerExample,
   DetailSwaggerExample,
   ListSwaggerExample,
 } from 'src/common/swagger/swagger-example.response';
-import { CreateLocationDto } from './dto/create-location.dto';
 import { FilteringLocationDto } from './dto/filtering-location.dto';
 import { ResponseLocationDto } from './dto/response-location.dto';
-import { UpdateLocationDto } from './dto/update-location.dto';
 import { LocationService } from './location.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -35,26 +18,6 @@ import { AuthGuard } from '@nestjs/passport';
 @UseGuards(AuthGuard('jwt'))
 export class LocationController {
   constructor(private readonly locationService: LocationService) {}
-
-  @Post()
-  @CreateSwaggerExample(
-    CreateLocationDto,
-    ResponseLocationDto,
-    false,
-    'Membuat Satu Location',
-  )
-  async create(
-    @Body() createDto: CreateLocationDto,
-    @Request() req: ExpressRequest,
-  ): Promise<BaseSuccessResponse<ResponseLocationDto>> {
-    const result = await this.locationService.create(createDto, req.user);
-
-    return {
-      data: plainToInstance(ResponseLocationDto, result, {
-        excludeExtraneousValues: true,
-      }),
-    };
-  }
 
   @Get()
   @ListSwaggerExample(ResponseLocationDto, 'Mengambil Banyak Data Location')
@@ -94,35 +57,5 @@ export class LocationController {
         excludeExtraneousValues: true,
       }),
     };
-  }
-
-  @Patch(':id')
-  @DetailSwaggerExample(ResponseLocationDto, 'Mengupdate Data Location By Id')
-  async update(
-    @Param() pathParamater: PathParameterDto,
-    @Body() update: UpdateLocationDto,
-    @Request() req: ExpressRequest,
-  ): Promise<BaseSuccessResponse<ResponseLocationDto>> {
-    const result = await this.locationService.update(
-      pathParamater.id,
-      update,
-      req.user,
-    );
-
-    return {
-      data: plainToInstance(ResponseLocationDto, result, {
-        excludeExtraneousValues: true,
-      }),
-    };
-  }
-
-  @Delete(':id')
-  @HttpCode(204)
-  @DeleteSwaggerExample('Menghapus Data Location dengan Id')
-  async remove(
-    @Param() pathParamater: PathParameterDto,
-    @Request() req: ExpressRequest,
-  ): Promise<void> {
-    await this.locationService.softRemove(pathParamater.id, req.user);
   }
 }
