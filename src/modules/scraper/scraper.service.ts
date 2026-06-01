@@ -18,8 +18,9 @@ import { BadRequestException } from 'src/common/bases/exceptions/templates/bad-r
 import { BaseExceptionResponse } from 'src/common/bases/base.response';
 import { StatusScraping } from './enums/status-scraping.enum';
 import { InjectQueue } from '@nestjs/bullmq';
-import { SCRAPER_QUEUE_NAME, ScraperJobData } from './scraper-queue.processor';
+import { SCRAPER_QUEUE_NAME, ScraperJobData } from './scraper-queue.consumer';
 import { Queue } from 'bullmq';
+import { LocationRepository } from '../location/location.repository';
 
 @Injectable()
 export class ScraperService {
@@ -30,6 +31,7 @@ export class ScraperService {
     private readonly datasource: DataSource,
     @InjectQueue(SCRAPER_QUEUE_NAME)
     private readonly scraperQueue: Queue<ScraperJobData>,
+    private readonly locationRepository: LocationRepository,
   ) {}
 
   // Cron
@@ -153,14 +155,14 @@ export class ScraperService {
       await this.validateCurrentRequest(queryRunner, user.id);
       const page = await browser.newPage();
 
-      const location = queryRunner.manager.create(Location, {
+      const location = this.locationRepository.create({
         name: startScrapingDto.name,
         searchQuery: startScrapingDto.search,
         totalItems: 0,
         status: StatusScraping.PROCESSING,
         user: { id: user.id },
       });
-      const savedLocation = await queryRunner.manager.save(Location, location);
+      const savedLocation = await this.locationRepository.save(location);
 
       this.logger.debug('Getting list locations...');
       let url = `https://www.google.com/maps/search/${startScrapingDto.search}`;

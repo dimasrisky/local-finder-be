@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Job } from 'bullmq';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
@@ -15,14 +15,15 @@ export interface ScraperJobData {
 }
 
 @Processor(SCRAPER_QUEUE_NAME)
-@Injectable()
 export class ScraperQueueProcessor extends WorkerHost {
   private readonly logger = new Logger(ScraperQueueProcessor.name);
-  private readonly scraperService: ScraperService;
 
   constructor(private readonly moduleRef: ModuleRef) {
     super();
-    this.scraperService = this.moduleRef.get(ScraperService, { strict: false });
+  }
+
+  private getScraperService(): ScraperService {
+    return this.moduleRef.get(ScraperService, { strict: false });
   }
 
   async process(
@@ -34,7 +35,8 @@ export class ScraperQueueProcessor extends WorkerHost {
 
     if (job.name === 'start-scraping') {
       try {
-        const result = await this.scraperService.startScraping(
+        const scraperService = this.getScraperService();
+        const result = await scraperService.startScraping(
           job.data.startScrapingDto,
           job.data.user,
         );

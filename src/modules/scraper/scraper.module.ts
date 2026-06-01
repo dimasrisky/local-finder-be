@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { ScraperController } from './scraper.controller';
 import { ScraperService } from './scraper.service';
-import { ConfigModule } from 'src/config/config.module';
 import { LocationItemModule } from '../location-item/location-item.module';
 import { LocationModule } from '../location/location.module';
 import { BullModule } from '@nestjs/bullmq';
 import {
   ScraperQueueProcessor,
   SCRAPER_QUEUE_NAME,
-} from './scraper-queue.processor';
+} from './scraper-queue.consumer';
 
 @Module({
   imports: [
-    ConfigModule,
     BullModule.registerQueue({
       name: SCRAPER_QUEUE_NAME,
     }),
@@ -20,7 +19,14 @@ import {
     LocationModule,
   ],
   controllers: [ScraperController],
-  providers: [ScraperService, ScraperQueueProcessor],
+  providers: [
+    ScraperService,
+    {
+      provide: ScraperQueueProcessor,
+      useFactory: (moduleRef) => new ScraperQueueProcessor(moduleRef),
+      inject: [ModuleRef],
+    },
+  ],
   exports: [ScraperService],
 })
 export class ScraperModule {}
