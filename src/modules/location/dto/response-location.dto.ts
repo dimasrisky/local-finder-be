@@ -21,4 +21,8 @@ export class ResponseLocationDto {
   @Expose()
   @ApiProperty({ description: '', example: null })
   totalItems: number;
+
+  @Expose()
+  @ApiProperty({ description: 'Status scraping', example: 'PROCESSING' })
+  status: string;
 }
